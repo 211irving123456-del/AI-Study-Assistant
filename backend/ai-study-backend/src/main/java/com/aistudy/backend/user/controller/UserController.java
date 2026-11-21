@@ -32,13 +32,17 @@ public class UserController {
 
     private final UserService userService;
 
+    private final JwtUtil jwtUtil;
+
 
 
     public UserController(
-            UserService userService
+            UserService userService,
+            JwtUtil jwtUtil
     ){
 
         this.userService=userService;
+        this.jwtUtil=jwtUtil;
 
     }
 
@@ -79,7 +83,7 @@ public class UserController {
 
 
         String token =
-                JwtUtil.generateToken(
+                jwtUtil.generateToken(
                         loginUser.getId()
                 );
 
