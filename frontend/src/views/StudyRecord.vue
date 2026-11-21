@@ -146,6 +146,17 @@
 
       <el-form>
 
+        <el-form-item v-if="!editMode" label="所属学习计划">
+          <el-select v-model="form.planId" placeholder="请选择学习计划" style="width: 100%">
+            <el-option
+              v-for="plan in plans"
+              :key="plan.id"
+              :label="plan.title"
+              :value="plan.id"
+            />
+          </el-select>
+        </el-form-item>
+
         <el-form-item
           label="标题"
         >
@@ -231,11 +242,13 @@ import {
   updateStudy,
   deleteStudy
 } from '@/api/study'
+import { getPlanList } from '@/api/plan'
 
 
 /* ==================== 数据 ==================== */
 
 const records = ref([])
+const plans = ref([])
 
 
 /* ==================== 弹窗 ==================== */
@@ -250,6 +263,8 @@ const editMode = ref(false)
 const form = ref({
 
   id: null,
+
+  planId: null,
 
   title: '',
 
@@ -309,9 +324,20 @@ async function load() {
 }
 
 
+async function loadPlans() {
+  try {
+    const res = await getPlanList()
+    plans.value = Array.isArray(res?.data?.data) ? res.data.data : []
+  } catch (error) {
+    console.error('加载学习计划失败：', error)
+    plans.value = []
+    ElMessage.error('学习计划加载失败，请稍后重试')
+  }
+}
+
 /* ==================== 打开新增 ==================== */
 
-function openAdd() {
+async function openAdd() {
 
   editMode.value = false
 
@@ -319,6 +345,8 @@ function openAdd() {
   form.value = {
 
     id: null,
+
+    planId: null,
 
     title: '',
 
@@ -329,6 +357,11 @@ function openAdd() {
   }
 
 
+  await loadPlans()
+  if (plans.value.length === 0) {
+    ElMessage.warning('请先创建学习计划，再添加学习记录')
+    return
+  }
   dialog.value = true
 
 }
@@ -353,7 +386,9 @@ function openEdit(item) {
       item.content || '',
 
     duration:
-      Number(item.duration || 0)
+      Number(item.duration || 0),
+
+    planId: item.planId ?? null
 
   }
 
@@ -384,6 +419,21 @@ async function submit() {
 
   }
 
+
+  if (!editMode.value && form.value.planId == null) {
+    ElMessage.warning('请选择所属学习计划')
+    return
+  }
+
+  if (!Number.isInteger(Number(form.value.duration)) || Number(form.value.duration) < 1) {
+    ElMessage.warning('学习时长必须至少为 1 分钟')
+    return
+  }
+
+  if (!form.value.content?.trim()) {
+    ElMessage.warning('请输入学习内容')
+    return
+  }
 
   try {
 
@@ -423,6 +473,8 @@ async function submit() {
     else {
 
       await addStudy({
+
+        planId: form.value.planId,
 
         title:
           form.value.title,
