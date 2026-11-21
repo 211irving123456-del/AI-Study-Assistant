@@ -16,7 +16,7 @@ const request = axios.create({
    */
 
   baseURL:
-    'http://localhost:8080',
+    import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080',
 
   /*
    * AI 请求可能比较慢

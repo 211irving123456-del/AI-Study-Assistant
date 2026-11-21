@@ -21,6 +21,8 @@ public class StudyRecordVOConverter {
                 record.getId()
         );
 
+        vo.setPlanId(record.getPlanId());
+
 
         vo.setTitle(
                 record.getTitle()
