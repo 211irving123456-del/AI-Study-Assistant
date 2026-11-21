@@ -9,18 +9,13 @@ import com.aistudy.backend.chat.service.ChatService;
 import com.aistudy.backend.chat.vo.ChatRecordVO;
 import com.aistudy.backend.chat.vo.GeneratePlanVO;
 
-import com.aistudy.backend.plan.entity.StudyPlan;
-import com.aistudy.backend.plan.service.StudyPlanService;
 
-import com.aistudy.backend.task.entity.StudyTask;
-import com.aistudy.backend.task.service.TaskService;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,9 +29,7 @@ public class ChatServiceImpl implements ChatService {
 
     private final ChatRecordMapper chatRecordMapper;
 
-    private final StudyPlanService studyPlanService;
-
-    private final TaskService taskService;
+    private final GeneratedPlanPersistenceService generatedPlanPersistenceService;
 
     private final ObjectMapper objectMapper;
 
@@ -44,8 +37,7 @@ public class ChatServiceImpl implements ChatService {
     public ChatServiceImpl(
             AIClient aiClient,
             ChatRecordMapper chatRecordMapper,
-            StudyPlanService studyPlanService,
-            TaskService taskService,
+            GeneratedPlanPersistenceService generatedPlanPersistenceService,
             ObjectMapper objectMapper
     ) {
 
@@ -53,9 +45,7 @@ public class ChatServiceImpl implements ChatService {
 
         this.chatRecordMapper = chatRecordMapper;
 
-        this.studyPlanService = studyPlanService;
-
-        this.taskService = taskService;
+        this.generatedPlanPersistenceService = generatedPlanPersistenceService;
 
         this.objectMapper = objectMapper;
     }
@@ -265,170 +255,9 @@ public class ChatServiceImpl implements ChatService {
         }
 
 
-        // ==============================
-        // 4. 创建StudyPlan
-        // ==============================
-
-        StudyPlan plan =
-                new StudyPlan();
-
-
-        plan.setUserId(
-                userId
-        );
-
-
-        plan.setTitle(
-                aiPlan.getTitle()
-        );
-
-
-        plan.setContent(
-                aiPlan.getContent()
-        );
-
-
-        if (
-                aiPlan.getStartDate() != null
-                &&
-                !aiPlan.getStartDate().isBlank()
-        ) {
-
-            plan.setStartDate(
-                    LocalDate.parse(
-                            aiPlan.getStartDate()
-                    )
-            );
-        }
-
-
-        if (
-                aiPlan.getEndDate() != null
-                &&
-                !aiPlan.getEndDate().isBlank()
-        ) {
-
-            plan.setEndDate(
-                    LocalDate.parse(
-                            aiPlan.getEndDate()
-                    )
-            );
-        }
-
-
-        plan.setTargetHours(
-                aiPlan.getTargetHours()
-        );
-
-
-        // 0 = 未开始
-        plan.setStatus(
-                0
-        );
-
-
-        // ==============================
-        // 5. 保存学习计划
-        // ==============================
-
-        studyPlanService.add(
-                plan
-        );
-
-
-        // ==============================
-        // 6. 自动创建StudyTask
-        // ==============================
-
-        if (aiPlan.getTasks() != null) {
-
-            for (
-                    AIPlanResultDTO.TaskDTO taskDTO
-                    : aiPlan.getTasks()
-            ) {
-
-
-                StudyTask task =
-                        new StudyTask();
-
-
-                // 用户ID
-                task.setUserId(
-                        userId
-                );
-
-
-                // 学习计划ID
-                task.setPlanId(
-                        plan.getId()
-                );
-
-
-                // 任务标题
-                task.setTitle(
-                        taskDTO.getTitle()
-                );
-
-
-                // 任务内容
-                task.setContent(
-                        taskDTO.getContent()
-                );
-
-
-                // 任务日期
-                if (
-                        taskDTO.getTaskDate() != null
-                        &&
-                        !taskDTO.getTaskDate().isBlank()
-                ) {
-
-                    task.setTaskDate(
-                            LocalDate.parse(
-                                    taskDTO.getTaskDate()
-                            )
-                    );
-                }
-
-
-                // 0 = 未完成
-                task.setStatus(
-                        0
-                );
-
-
-                // 保存任务
-                taskService.add(
-                        task
-                );
-            }
-        }
-
-
-        // ==============================
-        // 7. 返回学习计划
-        // ==============================
-
-        GeneratePlanVO vo =
-                new GeneratePlanVO();
-
-
-        vo.setTitle(
-                plan.getTitle()
-        );
-
-
-        vo.setContent(
-                plan.getContent()
-        );
-
-
-        vo.setTargetHours(
-                plan.getTargetHours()
-        );
-
-
-        return vo;
+        // 将已解析的 AI 结果交给独立的事务服务写入数据库。
+        // 模型请求本身不占用数据库事务。
+        return generatedPlanPersistenceService.save(userId, aiPlan);
     }
 
 

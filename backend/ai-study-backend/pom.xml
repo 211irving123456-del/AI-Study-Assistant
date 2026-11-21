@@ -117,6 +117,13 @@
     </dependency>
 
 
+    <!-- In-memory SQL database for isolated transactional integration tests -->
+    <dependency>
+        <groupId>com.h2database</groupId>
+        <artifactId>h2</artifactId>
+        <scope>test</scope>
+    </dependency>
+
     <!-- 测试 -->
     <dependency>
         <groupId>org.springframework.boot</groupId>
