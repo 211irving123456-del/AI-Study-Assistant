@@ -2,6 +2,7 @@ package com.aistudy.backend.config;
 
 
 import com.aistudy.backend.filter.LoginFilter;
+import com.aistudy.backend.common.JwtUtil;
 import com.aistudy.backend.user.mapper.UserMapper;
 
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -17,7 +18,8 @@ public class FilterConfig {
 
     @Bean
     public FilterRegistrationBean<LoginFilter> loginFilter(
-            UserMapper userMapper
+            UserMapper userMapper,
+            JwtUtil jwtUtil
     ){
 
 
@@ -26,7 +28,7 @@ public class FilterConfig {
 
 
         bean.setFilter(
-                new LoginFilter(userMapper)
+                new LoginFilter(userMapper, jwtUtil)
         );
 
 
