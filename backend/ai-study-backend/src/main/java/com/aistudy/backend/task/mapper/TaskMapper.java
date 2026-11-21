@@ -15,8 +15,10 @@ public interface TaskMapper {
     @Insert("""
         INSERT INTO study_task
         (user_id, plan_id, title, content, task_date, status, create_time)
-        VALUES
-        (#{userId}, #{planId}, #{title}, #{content}, #{taskDate}, #{status}, NOW())
+        SELECT #{userId}, p.id, #{title}, #{content}, #{taskDate}, #{status}, NOW()
+        FROM study_plan p
+        WHERE p.id = #{planId}
+          AND p.user_id = #{userId}
         """)
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(StudyTask task);
