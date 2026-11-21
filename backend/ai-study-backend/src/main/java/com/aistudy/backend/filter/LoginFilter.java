@@ -20,11 +20,14 @@ public class LoginFilter implements Filter {
 
     private final UserMapper userMapper;
 
+    private final JwtUtil jwtUtil;
 
 
-    public LoginFilter(UserMapper userMapper){
+
+    public LoginFilter(UserMapper userMapper, JwtUtil jwtUtil){
 
         this.userMapper = userMapper;
+        this.jwtUtil = jwtUtil;
 
     }
 
@@ -237,7 +240,7 @@ public class LoginFilter implements Filter {
              */
 
             Integer userId =
-                    JwtUtil.getUserId(token);
+                    jwtUtil.getUserId(token);
 
 
 
@@ -349,6 +352,7 @@ public class LoginFilter implements Filter {
 
 
 
+        resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         resp.setContentType(
                 "application/json;charset=UTF-8"
         );
