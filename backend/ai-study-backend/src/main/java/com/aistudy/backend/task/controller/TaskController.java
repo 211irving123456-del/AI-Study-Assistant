@@ -78,11 +78,11 @@ public class TaskController {
 
 
 
-        taskService.add(
-                task
-        );
+        int inserted = taskService.add(task);
 
-
+        if (inserted != 1) {
+            return Result.error(403, "无权向该学习计划添加任务，或计划不存在");
+        }
 
         return Result.success(
                 TaskConverter.convertVO(task)
