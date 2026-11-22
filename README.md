@@ -423,11 +423,11 @@ erDiagram
 
 | 项目 | 改进效果 | PR |
 | --- | --- | --- |
-| JWT 安全改造 | 从代码中的固定密钥改为外部 Base64 密钥配置，测试 Token 签发与校验 | [#1](../../pull/1) |
-| AI 计划事务 | 计划与每日任务同一事务保存，校验 AI 输出，失败时回滚 | [#2](../../pull/2) |
-| 学习记录表单 | 新增记录时选择所属计划，传递 `planId`，与后端参数要求一致 | [#3](../../pull/3) |
-| 任务归属校验 | 在 SQL 写入时同时验证 `planId` 和当前登录 `userId` | [#4](../../pull/4) |
-| 学习计时器 | 规范开始、暂停、继续、结束和保存状态，防止重复提交 | [#5](../../pull/5) |
+| JWT 安全改造 | 从代码中的固定密钥改为外部 Base64 密钥配置，测试 Token 签发与校验 | [#1](https://github.com/211irving123456-del/AI-Study-Assistant/pull/1) |
+| AI 计划事务 | 计划与每日任务同一事务保存，校验 AI 输出，失败时回滚 | [#2](https://github.com/211irving123456-del/AI-Study-Assistant/pull/2) |
+| 学习记录表单 | 新增记录时选择所属计划，传递 `planId`，与后端参数要求一致 | [#3](https://github.com/211irving123456-del/AI-Study-Assistant/pull/3) |
+| 任务归属校验 | 在 SQL 写入时同时验证 `planId` 和当前登录 `userId` | [#4](https://github.com/211irving123456-del/AI-Study-Assistant/pull/4) |
+| 学习计时器 | 规范开始、暂停、继续、结束和保存状态，防止重复提交 | [#5](https://github.com/211irving123456-del/AI-Study-Assistant/pull/5) |
 
 ### 自动化测试覆盖
 
